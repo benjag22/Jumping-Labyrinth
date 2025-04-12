@@ -1,6 +1,10 @@
 from boardAdjacencyList import BoardAdjacencyList
 
+
 def depth_first_search(adjacent_list, init_pos, goal_pos):
+    if not goal_pos:
+        return None
+
     visited_nodes = set()
     stack = [init_pos]
     parent = {init_pos: None}
@@ -38,5 +42,7 @@ if __name__ == "__main__":
         [4, 1, 4, 3, 2]
     ]
 
-    graph = BoardAdjacencyList(board)
+    graph = BoardAdjacencyList(board, (0, 0))
+    print(len(depth_first_search(graph.get_adjacency_list(), (0, 0), (1, 3))))
     print(depth_first_search(graph.get_adjacency_list(), (0, 0), (1, 3)))
+
