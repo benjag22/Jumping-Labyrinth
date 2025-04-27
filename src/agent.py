@@ -20,5 +20,5 @@ board2 = [
 
 graph = BoardAdjacencyList(board2, (0, 0))
 
-print(depth_first_search(graph.get_adjacency_list(), (0, 0), graph.goal_pos))
-print(uniform_cost_search(graph.get_adjacency_list(), (0, 0), graph.goal_pos))
+print(depth_first_search(graph.get_adjacency_list(), (0, 0), graph._goal_pos))
+print(uniform_cost_search(graph.get_adjacency_list(), (0, 0), graph._goal_pos))

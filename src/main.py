@@ -1,4 +1,8 @@
+from src.boardAdjacencyList import BoardAdjacencyList
+
+
 def main():
+    mazes = []
     while True:
         first_line = input().strip()
         first_line_list = first_line.split()
@@ -18,7 +22,7 @@ def main():
             if len(i_line) < m:
                 exit(1)
             matrix.append(i_line)
-
+        mazes.append(BoardAdjacencyList(matrix, init_pos, goal_pos))
 
 if __name__ == "__main__":
     main()
