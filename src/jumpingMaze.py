@@ -13,11 +13,13 @@ START_COLOR = (0, 255, 0)
 GOAL_COLOR = (255, 0, 0)
 PATH_COLOR = (0, 0, 255)
 CURRENT_COLOR = (255, 165, 0)
+NO_SOLUTION_COLOR = (255, 50, 50)
 FONT_SIZE = 24
 PADDING = 50
 
 pygame.init()
 font = pygame.font.SysFont('Arial', FONT_SIZE)
+large_font = pygame.font.SysFont('Arial', FONT_SIZE * 2)
 
 
 class JumpingMaze:
@@ -32,6 +34,7 @@ class JumpingMaze:
         self.current_step = 0
         self.animation_speed = 500
         self.last_update = 0
+        self.has_solution = True
 
         self.width = SCREEN_WIDTH
         self.height = SCREEN_HEIGHT
@@ -96,28 +99,27 @@ class JumpingMaze:
         if dfs_length == float('inf') and uniform_length == float('inf'):
             self.current_algorithm = "best"
             self.solution = None
-            print("No hay solución")
+            self.has_solution = False
             return None
+
+        self.has_solution = True
 
         if dfs_length <= uniform_length:
             self.current_algorithm = "dfs"
             self.solution = self.dfs_solution
-            print(f"DFS encontró la mejor solución con {dfs_length} pasos")
         else:
             self.current_algorithm = "uniform"
             self.solution = self.uniform_solution
-            print(f"Costo Uniforme encontró la mejor solución con {uniform_length} pasos")
 
         self.current_step = 0
         return self.solution
 
     def solve_current_maze(self):
-
         if self.current_algorithm == "dfs":
             self.solution = self.solve_dfs()
         elif self.current_algorithm == "uniform":
             self.solution = self.solve_uniform_cost()
-        else:  
+        else:
             self.solution = self.solve_best_algorithm()
 
         self.current_step = 0
@@ -192,6 +194,22 @@ class JumpingMaze:
         goal_rect = pygame.Rect(goal_x, goal_y, cell_size, cell_size)
         pygame.draw.rect(self.window, GOAL_COLOR, goal_rect, 3)
 
+        if not self.has_solution:
+            no_solution_text = large_font.render("¡NO HAY SOLUCIÓN POSIBLE!", True, NO_SOLUTION_COLOR)
+            text_rect = no_solution_text.get_rect(center=(self.width / 2, offset_y + available_height / 2 - 50))
+
+            bg_rect = pygame.Rect(text_rect.x - 20, text_rect.y - 10, text_rect.width + 40, text_rect.height + 20)
+            bg_surface = pygame.Surface((bg_rect.width, bg_rect.height), pygame.SRCALPHA)
+            bg_surface.fill((255, 255, 255, 200))
+            self.window.blit(bg_surface, (bg_rect.x, bg_rect.y))
+
+            self.window.blit(no_solution_text, text_rect)
+
+            hint_text = font.render("Prueba otro algoritmo o pasa al siguiente laberinto con [N]", True,
+                                    NO_SOLUTION_COLOR)
+            hint_rect = hint_text.get_rect(center=(self.width / 2, text_rect.bottom + 20))
+            self.window.blit(hint_text, hint_rect)
+
         if self.solution:
             for i in range(1, min(self.current_step + 1, len(self.solution))):
                 prev_pos = self.solution[i - 1]
@@ -254,12 +272,14 @@ class JumpingMaze:
                         if not self.dfs_solution:
                             self.solve_dfs()
                         self.solution = self.dfs_solution
+                        self.has_solution = self.solution is not None
                         self.current_step = 0
                     elif event.key == pygame.K_u:
                         self.current_algorithm = "uniform"
                         if not self.uniform_solution:
                             self.solve_uniform_cost()
                         self.solution = self.uniform_solution
+                        self.has_solution = self.solution is not None
                         self.current_step = 0
                     elif event.key == pygame.K_b:
                         self.solve_best_algorithm()
